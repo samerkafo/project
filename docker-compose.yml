@@ -1,0 +1,49 @@
+version: '2.0'
+services:
+  web-site1:
+   image: localhost:5000/php-zendserver
+   ports: 
+     - "9811:80"
+   volumes:
+     - "./web-site1:/var/www/html"
+   networks:
+     - frontend
+    
+    
+  loadbalancer: 
+   build:
+     context: /home/netlab/pr/Dockerfile/
+     dockerfile: Dockerfile
+   ports:
+      - "9810:80"
+   networks:
+      - frontend 
+  db:
+   image: localhost:5000/mariadb
+   networks:
+     - frontend
+   ports:
+     - "9812:3306"
+   volumes:
+     - ./:/var/lib/mysql
+   environment:
+     MYSQL_ROOT_PASSWORD: netlab
+     MYSQL_USER: root
+     MYSQL_PASSWORD: netlab
+     MYSQL_DATABASE: bigdata
+  phpmyadmin:
+   image: localhost:5000/phpmyadmin/phpmyadmin
+   networks:
+     - frontend
+   ports:
+     - "9813:80"
+   links:
+     - db
+   environment:
+     MYSQL_USERNAME: root
+     MYSQL_ROOT_PASSWORD: netlab
+networks:
+   frontend:
+     driver: bridge
+     ipam:
+       driver: default
